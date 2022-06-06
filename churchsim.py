@@ -36,7 +36,8 @@ WHITE = (255, 255, 255)
 
 #load images
 bg_image = pg.image.load('assets/background.png').convert_alpha()
-
+bg_image_base = pg.image.load('assets/backgroundNoTreeTops.png').convert_alpha()
+bg_image_foliage = pg.image.load('assets/backgroundTreeLeaf.png').convert_alpha()
 
 
 CHARACTERCHOICEBACKGROUND = pg.image.load('assets/charBackground.png').convert_alpha()
@@ -167,8 +168,9 @@ class Player():
 	def draw(self):
 		#screen.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x - 12, self.rect.y - 5))#this is where ya wanna changethe picture
 		self.count += 1 #this is for walk cycle i think????
-		screen.blit(bg_image, (self.backGroundX, self.backGroundY))#need to resize obviously maybe make its own class later
+		screen.blit(bg_image_base, (self.backGroundX, self.backGroundY))#need to resize obviously maybe make its own class later
 		screen.blit(self.image,((SCREEN_WIDTH//2)-(SPRITESIZE/2),(SCREEN_HEIGHT//2)-(SPRITESIZE/2)))#character drawn
+		screen.blit(bg_image_foliage, (self.backGroundX, self.backGroundY))#need to resize obviously maybe make its own class later
 		#pygame.draw.rect(screen, WHITE, self.rect, 2)#to see the outline of hitbox
 
 # initialize screen manipulation and image objects
