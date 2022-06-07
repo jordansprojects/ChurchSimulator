@@ -44,6 +44,26 @@ CHARACTERCHOICEBACKGROUND = pg.image.load('assets/charBackground.png').convert_a
 SPRITE = ['assets/FChristian.png','assets/Fpuritan.png','assets/MChristian.png','assets/Mpope.png', 'assets/eli.png']
 CHARNAMES = ['assets/characternames/FChristianSign.png','assets/characternames/FPuritanSign.png.png','assets/characternames/MChristianSign.png','assets/characternames/MPopeSign.png','assets/characternames/Eli.png']
 
+#makes image alpha #convert_alpha and convert() matter idk why
+def makeAlpha(imageHold):
+	imageTest = pg.surfarray.pixels_alpha(imageHold)
+	for x in range(len(imageTest)):
+		for y in range(len(imageTest[x])):
+			#print("here")
+			#imageTest[x][y] = pg.Color(255,255,255,0)
+			#------------------
+			#this doesnt work
+			#hold = imageTest[x][y]
+			#hold = 0 #copying by value
+			#------------------
+			
+			if(imageTest[x][y] == 0):
+				continue
+			imageTest[x][y] = 10
+	del imageTest
+
+
+
 #the enum array is structured like so:
 	#stand
 	#walk 1(x?,y?) 2(x?,y?)
@@ -118,6 +138,8 @@ class Player():
 		self.item = Item.none
 		self.chosenImage = pg.image.load(SPRITE[0]).convert_alpha()#this will have to change
 		self.image = pg.image.load(SPRITE[0]).convert_alpha()#pygame.transform.scale(jumpy_image, (200,100))
+		self.alphaChosen = self.chosenImage.copy()#this is the image that fits over the foliage when walking under it
+		self.overImage = self.chosenImage.copy()#this is the cut of the image of "alpha image"
 		#self.width = 200
 		#self.height = 200
 		self.count = 0
@@ -140,8 +162,10 @@ class Player():
 			
 		if(self.left == False):
 			self.image = pg.transform.flip(self.chosenImage.subsurface((self.item.value[1][0],self.item.value[1][1],SPRITESIZE,SPRITESIZE)), self.flip, False)
+			self.overImage = pg.transform.flip(self.alphaChosen.subsurface((self.item.value[1][0],self.item.value[1][1],SPRITESIZE,SPRITESIZE)), self.flip, False)
 		else:
 			self.image = pg.transform.flip(self.chosenImage.subsurface((self.item.value[1][2],self.item.value[1][3],SPRITESIZE,SPRITESIZE)), self.flip, False)
+			self.overImage = pg.transform.flip(self.alphaChosen.subsurface((self.item.value[1][2],self.item.value[1][3],SPRITESIZE,SPRITESIZE)), self.flip, False)
 		
 			
 	def move(self):
@@ -161,6 +185,7 @@ class Player():
 				self.backGroundY += 2
 		else:
 			self.image = pg.transform.flip(self.chosenImage.subsurface((self.item.value[0][0],self.item.value[0][1],SPRITESIZE,SPRITESIZE)), self.flip, False)#this will have to change
+			self.overImage = pg.transform.flip(self.alphaChosen.subsurface((self.item.value[0][0],self.item.value[0][1],SPRITESIZE,SPRITESIZE)), self.flip, False)
 		#update rectangle position
 		#self.rect.x += dx
 		#self.rect.y += dy
@@ -168,9 +193,12 @@ class Player():
 	def draw(self):
 		#screen.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x - 12, self.rect.y - 5))#this is where ya wanna changethe picture
 		self.count += 1 #this is for walk cycle i think????
+		
 		screen.blit(bg_image_base, (self.backGroundX, self.backGroundY))#need to resize obviously maybe make its own class later
 		screen.blit(self.image,((SCREEN_WIDTH//2)-(SPRITESIZE/2),(SCREEN_HEIGHT//2)-(SPRITESIZE/2)))#character drawn
 		screen.blit(bg_image_foliage, (self.backGroundX, self.backGroundY))#need to resize obviously maybe make its own class later
+		#screen.blit(self.image,((SCREEN_WIDTH//2)-(SPRITESIZE/2),(SCREEN_HEIGHT//2)-(SPRITESIZE/2)))
+		screen.blit(self.overImage, ((SCREEN_WIDTH//2)-(SPRITESIZE/2),(SCREEN_HEIGHT//2)-(SPRITESIZE/2)))
 		#pygame.draw.rect(screen, WHITE, self.rect, 2)#to see the outline of hitbox
 
 # initialize screen manipulation and image objects
@@ -199,7 +227,11 @@ while run:
 		charScreen.changeChars()
 		if charScreen.charChosen:
 			player.image = pg.image.load(SPRITE[charScreen.count]).convert_alpha()
-			player.chosenImage = pg.image.load(SPRITE[charScreen.count]).convert_alpha()
+			player.chosenImage = player.image.copy()#pg.image.load(SPRITE[charScreen.count]).convert_alpha()
+			player.alphaChosen = player.chosenImage.copy()
+			makeAlpha(player.alphaChosen)#this makes image alpha
+			#player.alphaChosen = player.chosenImage.copy().convert()#sometimes convert is needed, this gives the top image of the player
+			#player.alphaChosen.set_alpha(12)
 		charScreen.draw()
 		charScreen.changeChars()
 		
