@@ -1,6 +1,9 @@
 #import libraries
 import pygame as pg
 import enum
+
+from namer import Namer #namer.py
+
 #initialise pygame
 pg.init()
 
@@ -55,7 +58,7 @@ class CharScreen():
 		self.charChosen = False #ill use this later for character choosing
 		self.count = 0 #counts the passes
 		self.charScreen = CHARACTERCHOICEBACKGROUND
-		self.charImage = (pg.image.load(SPRITE[self.count]).convert_alpha()).subsurface((Item.none.value[0][0],Item.none.value[0][1],SPRITESIZE,SPRITESIZE))#yes its a fucking messyy, this crops the sprite sheet
+		self.charImage = (pg.image.load(SPRITE[self.count]).convert_alpha()).subsurface((Item.none.value[0][0],Item.none.value[0][1],SPRITESIZE,SPRITESIZE))#yes its messyy, this crops the sprite sheet
 		self.charName = (pg.image.load(CHARNAMES[self.count]))
 		#time interval wait didnt work
 		self.interval = 200
@@ -168,20 +171,26 @@ class Player():
 		screen.blit(self.image,((SCREEN_WIDTH//2)-(SPRITESIZE/2),(SCREEN_HEIGHT//2)-(SPRITESIZE/2)))#character drawn
 		#pygame.draw.rect(screen, WHITE, self.rect, 2)#to see the outline of hitbox
 
+# initialize screen manipulation and image objects
+namingScreen = Namer(screen,SCREEN_WIDTH,SCREEN_HEIGHT )
 charScreen = CharScreen()
 player = Player()
 
-#jumpy.item.
-#game loop
 print()
 print()
 print()
 print("Move around with awsd keys")
+
+
+########## MAIN GAME LOOP ##############################
 run = True
 while run:
 
 	clock.tick(FPS)
-	if charScreen.charChosen:
+	#chaining another if statement here
+	if   (not (namingScreen.complete)):
+		namingScreen.draw()
+	elif charScreen.charChosen:
 		player.move()
 		player.draw()
 	else:
